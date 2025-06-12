@@ -1,194 +1,70 @@
-# Byte-compiled / optimized / DLL files
-__pycache__/
-*.py[cod]
-*$py.class
+from PIL import Image
+import numpy as np
+import os
 
-# C extensions
-*.so
+def load_image(path):
+    try:
+        img = Image.open(path).convert("RGB")
+        return img
+    except Exception as e:
+        print(" Error loading image:", e)
+        return 
+    
+def encrypt_image(img, key):
+    arr = np.array(img).astype(np.int16)  # convert to larger type
+    encrypted_arr = (arr + key) % 256
+    return Image.fromarray(np.uint8(encrypted_arr))
 
-# Distribution / packaging
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-share/python-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
+def decrypt_image(img, key):
+    arr = np.array(img).astype(np.int16)  # convert to larger type
+    decrypted_arr = (arr - key) % 256
+    return Image.fromarray(np.uint8(decrypted_arr))
 
-# PyInstaller
-#  Usually these files are written by a python script from a template
-#  before PyInstaller builds the exe, so as to inject date/other infos into it.
-*.manifest
-*.spec
 
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
+def save_image(img, path):
+    img.save(path)
+    print(f"Image saved as: {path}")
 
-# Unit test / coverage reports
-htmlcov/
-.tox/
-.nox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-*.py,cover
-.hypothesis/
-.pytest_cache/
-cover/
+def main():
+    print(" Simple Image Encryption Tool")
+    print("📸 Example: C:/Users/YourName/Pictures/photo.jpg or photo.jpg")
 
-# Translations
-*.mo
-*.pot
+    # Ask for image path
+    img_path = input("Enter image file path: ").strip()
 
-# Django stuff:
-*.log
-local_settings.py
-db.sqlite3
-db.sqlite3-journal
+    # Check if file exists
+    if not os.path.isfile(img_path):
+        print(" File not found. Please check the path.")
+        return
 
-# Flask stuff:
-instance/
-.webassets-cache
+    # Load image
+    img = load_image(img_path)
+    if img is None:
+        return
 
-# Scrapy stuff:
-.scrapy
+    # Ask whether to encrypt or decrypt
+    action = input("Do you want to (E)ncrypt or (D)ecrypt the image? ").strip().upper()
+    if action not in ['E', 'D']:
+        print(" Invalid choice. Enter 'E' or 'D'.")
+        return
 
-# Sphinx documentation
-docs/_build/
+    # Ask for a numeric key
+    try:
+        key = int(input("Enter a numeric key (0–255): "))
+        if not (0 <= key <= 255):
+            raise ValueError
+    except ValueError:
+        print("Invalid key. Must be an integer between 0 and 255.")
+        return
 
-# PyBuilder
-.pybuilder/
-target/
+    # Process the image
+    if action == 'E':
+        result = encrypt_image(img, key)
+        save_image(result, "encrypted_image.png")
+    else:
+        result = decrypt_image(img, key)
+        save_image(result, "decrypted_image.png")
 
-# Jupyter Notebook
-.ipynb_checkpoints
+if __name__ == "__main__":
+    main()
 
-# IPython
-profile_default/
-ipython_config.py
-
-# pyenv
-#   For a library or package, you might want to ignore these files since the code is
-#   intended to run in multiple environments; otherwise, check them in:
-# .python-version
-
-# pipenv
-#   According to pypa/pipenv#598, it is recommended to include Pipfile.lock in version control.
-#   However, in case of collaboration, if having platform-specific dependencies or dependencies
-#   having no cross-platform support, pipenv may install dependencies that don't work, or not
-#   install all needed dependencies.
-#Pipfile.lock
-
-# UV
-#   Similar to Pipfile.lock, it is generally recommended to include uv.lock in version control.
-#   This is especially recommended for binary packages to ensure reproducibility, and is more
-#   commonly ignored for libraries.
-#uv.lock
-
-# poetry
-#   Similar to Pipfile.lock, it is generally recommended to include poetry.lock in version control.
-#   This is especially recommended for binary packages to ensure reproducibility, and is more
-#   commonly ignored for libraries.
-#   https://python-poetry.org/docs/basic-usage/#commit-your-poetrylock-file-to-version-control
-#poetry.lock
-
-# pdm
-#   Similar to Pipfile.lock, it is generally recommended to include pdm.lock in version control.
-#pdm.lock
-#   pdm stores project-wide configurations in .pdm.toml, but it is recommended to not include it
-#   in version control.
-#   https://pdm.fming.dev/latest/usage/project/#working-with-version-control
-.pdm.toml
-.pdm-python
-.pdm-build/
-
-# PEP 582; used by e.g. github.com/David-OConnor/pyflow and github.com/pdm-project/pdm
-__pypackages__/
-
-# Celery stuff
-celerybeat-schedule
-celerybeat.pid
-
-# SageMath parsed files
-*.sage.py
-
-# Environments
-.env
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
-
-# Spyder project settings
-.spyderproject
-.spyproject
-
-# Rope project settings
-.ropeproject
-
-# mkdocs documentation
-/site
-
-# mypy
-.mypy_cache/
-.dmypy.json
-dmypy.json
-
-# Pyre type checker
-.pyre/
-
-# pytype static type analyzer
-.pytype/
-
-# Cython debug symbols
-cython_debug/
-
-# PyCharm
-#  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
-#  be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
-#  and can be added to the global gitignore or merged into this file.  For a more nuclear
-#  option (not recommended) you can uncomment the following to ignore the entire idea folder.
-#.idea/
-
-# Abstra
-# Abstra is an AI-powered process automation framework.
-# Ignore directories containing user credentials, local state, and settings.
-# Learn more at https://abstra.io/docs
-.abstra/
-
-# Visual Studio Code
-#  Visual Studio Code specific template is maintained in a separate VisualStudioCode.gitignore 
-#  that can be found at https://github.com/github/gitignore/blob/main/Global/VisualStudioCode.gitignore
-#  and can be added to the global gitignore or merged into this file. However, if you prefer, 
-#  you could uncomment the following to ignore the enitre vscode folder
-# .vscode/
-
-# Ruff stuff:
-.ruff_cache/
-
-# PyPI configuration file
-.pypirc
-
-# Cursor
-#  Cursor is an AI-powered code editor. `.cursorignore` specifies files/directories to
-#  exclude from AI features like autocomplete and code analysis. Recommended for sensitive data
-#  refer to https://docs.cursor.com/context/ignore-files
-.cursorignore
-.cursorindexingignore
